@@ -43,12 +43,18 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+        run: |
+          set -e
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --push \
+            --tag "ghcr.io/${{ github.repository }}:${{ github.sha }}" \
+            --tag "ghcr.io/${{ github.repository }}:latest" \
+            --tag "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}" \
+            --file Dockerfile \
+            . 2>&1 | tee /tmp/build.log
+        env:
+          DOCKER_BUILDKIT: 1
 
       - name: Notify success
         if: success()
@@ -70,6 +76,7 @@ jobs:
       - name: Notify failure
         if: failure()
         run: |
+          ERROR_LOG=$(cat /tmp/build.log 2>/dev/null | tail -50 || echo "No build log available")
           for attempt in 1 2 3 4 5; do
             curl -sS \
               --retry 5 \
@@ -77,9 +84,11 @@ jobs:
               --retry-connrefused \
               --max-time 30 \
               -H "Title: Docker Build Failed" \
-              -H "Tags: x" \
-              -H "Priority: urgent" \
-              -d "ghcr.io/${{ github.repository }}:${{ github.ref_name }} failed" \
+              -H "Tags: x\" \\\n              -H \"Priority: urgent" \
+              -d "ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+
+Error:
+$ERROR_LOG" \
               "$NTFY_URL" && exit 0 || echo "Attempt $attempt failed, retrying..."
             sleep 5
           done
