@@ -1,9 +1,20 @@
 vim.api.nvim_create_autocmd({ "FileType" }, {
-  pattern = "lua,go",
-  callback = function()
-    vim.lsp.enable({ "lua_ls", "gopls" })
-  end,
-  once = true,
+	pattern = "*",
+	callback = function()
+		vim.lsp.enable({
+			"lua_ls",
+			"gopls",
+			"golangci_lint_ls",
+			"ts_ls",
+			"tailwindcss",
+			"rust_analyzer",
+			"dartls",
+			"clangd",
+			"tinymist",
+			"sqls"
+		})
+	end,
+	once = true,
 })
 
 vim.api.nvim_create_autocmd("LspAttach", {
