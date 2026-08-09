@@ -8,7 +8,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: minimalist-nvim
+  OWNER: ${{ github.repository_owner }}
   NTFY_URL: https://ntfy.arwi.dev/github_alerts
 
 jobs:
@@ -36,7 +37,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=branch
             type=sha,prefix=
@@ -48,9 +49,9 @@ jobs:
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
             --push \
-            --tag "ghcr.io/${{ github.repository }}:${{ github.sha }}" \
-            --tag "ghcr.io/${{ github.repository }}:latest" \
-            --tag "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}" \
+            --tag "${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" \
+            --tag "${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.IMAGE_NAME }}:latest" \
+            --tag "${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}" \
             --file Dockerfile \
             . 2>&1 | tee /tmp/build.log
         env:
@@ -68,7 +69,7 @@ jobs:
               -H "Title: Docker Build Passed" \
               -H "Tags: white_check_mark" \
               -H "Priority: high" \
-              -d "ghcr.io/${{ github.repository }}:${{ github.sha }}" \
+              -d "${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" \
               "$NTFY_URL" && exit 0 || echo "Attempt $attempt failed, retrying..."
             sleep 5
           done
@@ -77,7 +78,7 @@ jobs:
         if: failure()
         run: |
           ERROR_LOG=$(cat /tmp/build.log 2>/dev/null | tail -30 || echo "No build log")
-          MSG="ghcr.io/${{ github.repository }}:${{ github.ref_name }}\n\nError:\n$ERROR_LOG"
+          MSG="${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}\n\nError:\n$ERROR_LOG"
           for attempt in 1 2 3 4 5; do
             curl -sS \
               --retry 5 \
