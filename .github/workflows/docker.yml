@@ -76,7 +76,8 @@ jobs:
       - name: Notify failure
         if: failure()
         run: |
-          ERROR_LOG=$(cat /tmp/build.log 2>/dev/null | tail -50 || echo "No build log available")
+          ERROR_LOG=$(cat /tmp/build.log 2>/dev/null | tail -30 || echo "No build log")
+          MSG="ghcr.io/${{ github.repository }}:${{ github.ref_name }}\n\nError:\n$ERROR_LOG"
           for attempt in 1 2 3 4 5; do
             curl -sS \
               --retry 5 \
@@ -84,11 +85,9 @@ jobs:
               --retry-connrefused \
               --max-time 30 \
               -H "Title: Docker Build Failed" \
-              -H "Tags: x\" \\\n              -H \"Priority: urgent" \
-              -d "ghcr.io/${{ github.repository }}:${{ github.ref_name }}
-
-Error:
-$ERROR_LOG" \
-              "$NTFY_URL" && exit 0 || echo "Attempt $attempt failed, retrying..."
+              -H "Tags: x" \
+              -H "Priority: urgent" \
+              -d "$MSG" \
+              "$NTFY_URL" && exit 0 || echo "Attempt $attempt failed"
             sleep 5
           done
