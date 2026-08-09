@@ -1,0 +1,16 @@
+{
+  "plugins": {
+    "nvim-dap": {
+      "rev": "881f7dc17c0b4204a1d844732f95539575350e5b",
+      "src": "https://github.com/mfussenegger/nvim-dap"
+    },
+    "nvim-treesitter": {
+      "rev": "0606c7a9dcaa5c5beee0b0f09043e9fdd1ba0a68",
+      "src": "https://github.com/nvim-treesitter/nvim-treesitter"
+    },
+    "which-key.nvim": {
+      "rev": "b4177e3eaf15fe5eb8357ebac2286d488be1ed00",
+      "src": "https://github.com/folke/which-key.nvim"
+    }
+  }
+}
