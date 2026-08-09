@@ -33,7 +33,6 @@ RUN apk add --no-cache \
     git \
     nodejs \
     npm \
-    lua-language-server \
     go \
     unzip
 
@@ -44,6 +43,7 @@ COPY --from=builder /usr/local/bin/golangci-lint /usr/local/bin/golangci-lint
 COPY --from=builder /usr/local/bin/typescript* /usr/local/bin/
 COPY --from=builder /usr/local/bin/sqls /usr/local/bin/
 COPY --from=builder /usr/local/bin/lua-language-server /usr/local/bin/
+COPY --from=builder /usr/local/lib /usr/local/lib
 
 ENV PATH=$PATH:/usr/local/go/bin:/root/go/bin
 ENV GOPATH=/root/go
