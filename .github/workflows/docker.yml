@@ -9,6 +9,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  NTFY_URL: https://ntfy.arwi.dev/github_alerts
 
 jobs:
   build:
@@ -48,3 +49,37 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Notify success
+        if: success()
+        run: |
+          for attempt in 1 2 3 4 5; do
+            curl -sS \
+              --retry 5 \
+              --retry-delay 3 \
+              --retry-connrefused \
+              --max-time 30 \
+              -H "Title: Docker Build Passed" \
+              -H "Tags: white_check_mark" \
+              -H "Priority: high" \
+              -d "ghcr.io/${{ github.repository }}:${{ github.sha }}" \
+              "$NTFY_URL" && exit 0 || echo "Attempt $attempt failed, retrying..."
+            sleep 5
+          done
+
+      - name: Notify failure
+        if: failure()
+        run: |
+          for attempt in 1 2 3 4 5; do
+            curl -sS \
+              --retry 5 \
+              --retry-delay 3 \
+              --retry-connrefused \
+              --max-time 30 \
+              -H "Title: Docker Build Failed" \
+              -H "Tags: x" \
+              -H "Priority: urgent" \
+              -d "ghcr.io/${{ github.repository }}:${{ github.ref_name }} failed" \
+              "$NTFY_URL" && exit 0 || echo "Attempt $attempt failed, retrying..."
+            sleep 5
+          done
