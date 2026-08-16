@@ -22,9 +22,10 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		local client = assert(vim.lsp.get_client_by_id(ev.data.client_id))
 		vim.lsp.log.set_level(vim.log.levels.ERROR)
 		if client:supports_method('textDocument/completion') then
+			-- ponytail: trigger via TextChangedI with Invoked kind so rust-analyzer filters by prefix instead of dumping everything
 			vim.lsp.completion.enable(true, client.id, ev.buf,
 				{
-					autotrigger = true,
+					autotrigger = false,
 					convert = function(item)
 						local abbr = item.label:match("[%w_.]+.*") or item.label
 						local doc = item.documentation
@@ -43,6 +44,17 @@ vim.api.nvim_create_autocmd("LspAttach", {
 						}
 					end,
 				})
+			vim.api.nvim_create_autocmd("TextChangedI", {
+				buffer = ev.buf,
+				callback = function()
+					local col = vim.api.nvim_win_get_cursor(0)[2]
+					if col == 0 then return end
+					local line = vim.api.nvim_get_current_line()
+					if line:sub(col, col):match("[%w_%.:%(:]") then
+						vim.lsp.completion.get()
+					end
+				end,
+			})
 		end
 
 
@@ -70,29 +82,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
 					vim.lsp.buf.signature_help({ focusable = false })
 				end,
 			})
-		end
-		if client:supports_method('textDocument/completion') then
-			vim.lsp.completion.enable(true, client.id, ev.buf,
-				{
-					autotrigger = true,
-					convert = function(item)
-						local abbr = item.label:match("[%w_.]+.*") or item.label
-						local doc = item.documentation
-						if not doc or type(doc) ~= "string" or not vim.startswith(doc, "#") then
-							return {}
-						end
-						local color = doc:sub(1, 7) -- Make sure to get the full hex code
-						local hl_color = color:sub(2) -- Remove the '#' for hl group name
-						local hl_group = "lsp_color_" .. hl_color
-						vim.api.nvim_set_hl(0, hl_group, { fg = color, bg = color })
-						return {
-							abbr = #abbr > 25 and abbr:sub(1, 24) .. "…" or abbr,
-							menu = "",
-							kind_hlgroup = "lsp_color_" .. hl_color,
-							kind = "XX",
-						}
-					end,
-				})
 		end
 
 		if client:supports_method('textDocument/inlayHint') then

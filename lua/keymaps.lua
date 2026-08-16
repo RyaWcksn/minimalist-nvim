@@ -50,3 +50,16 @@ vim.keymap.set('n', '<C-h>', ":cprev<CR>", { silent = true })
 -- Buffer
 vim.keymap.set('n', '<leader>ba', ":w <bar> %bd <bar> e# <bar> bd# <CR>", { desc = "Delete All But This Buffer" })
 vim.keymap.set('n', '<leader>bd', ":bd<CR>", { desc = "Delete This Buffer" })
+
+-- Folding
+vim.keymap.set("n", "<leader>kk", function()
+	local linenr = vim.fn.line(".")
+	-- If there's no fold to be opened/closed, do nothing.
+	if vim.fn.foldlevel(linenr) == 0 then
+		return
+	end
+
+	-- Open recursively if closed, close if open.
+	local cmd = vim.fn.foldclosed(linenr) == -1 and "zc" or "zO"
+	vim.cmd("normal! " .. cmd)
+end, { silent = true, desc = "Folds: Toggle" })

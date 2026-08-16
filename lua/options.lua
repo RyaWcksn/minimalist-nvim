@@ -15,3 +15,8 @@ vim.opt.clipboard = "unnamedplus"
 vim.opt.completeopt = { "menuone", "noselect", 'fuzzy', 'popup' }
 
 vim.g.mapleader = " "
+
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.opt.foldcolumn = "0"
+vim.opt.foldtext = ""
