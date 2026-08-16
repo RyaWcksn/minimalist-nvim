@@ -50,7 +50,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 					local col = vim.api.nvim_win_get_cursor(0)[2]
 					if col == 0 then return end
 					local line = vim.api.nvim_get_current_line()
-					if line:sub(col, col):match("[%w_%.:%(:]") then
+					if line:sub(col, col):match("[%w_]") then
 						vim.lsp.completion.get()
 					end
 				end,
@@ -79,6 +79,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 			vim.api.nvim_create_autocmd("CursorHoldI", {
 				buffer = ev.buf,
 				callback = function()
+					if vim.fn.pumvisible() == 1 then return end
 					vim.lsp.buf.signature_help({ focusable = false })
 				end,
 			})
