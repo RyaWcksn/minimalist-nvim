@@ -74,10 +74,9 @@ local function lsp_status()
 end
 
 local function git_branch()
-	local branch = vim.fn.system("git branch --show-current 2>/dev/null | tr -d '\n'")
-	if branch ~= "" then
-		local result = string.format(" [%s] ", branch)
-		return result
+	-- ponytail: BufEnter already cached vim.b.git_branch via a single git call, reuse it
+	if vim.b.git_branch and vim.b.git_branch ~= "" then
+		return string.format(" [%s] ", vim.b.git_branch)
 	end
 	return ""
 end

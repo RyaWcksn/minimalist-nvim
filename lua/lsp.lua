@@ -76,10 +76,16 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
 
 		if client:supports_method("textDocument/signatureHelp") then
-			vim.api.nvim_create_autocmd("CursorHoldI", {
+			vim.api.nvim_create_autocmd({ "CursorHoldI", "TextChangedI" }, {
 				buffer = ev.buf,
-				callback = function()
+				callback = function(args)
 					if vim.fn.pumvisible() == 1 then return end
+					if args.event == "TextChangedI" then
+						local col = vim.api.nvim_win_get_cursor(0)[2]
+						if col == 0 then return end
+						local line = vim.api.nvim_get_current_line()
+						if not line:sub(col, col):match("[(,]") then return end
+					end
 					vim.lsp.buf.signature_help({ focusable = false })
 				end,
 			})
