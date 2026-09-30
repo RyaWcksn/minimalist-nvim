@@ -64,6 +64,10 @@ vim.keymap.set("n", "<leader>kk", function()
 	vim.cmd("normal! " .. cmd)
 end, { silent = true, desc = "Folds: Toggle" })
 
+vim.keymap.set("n", "<leader>kK", "zR", { silent = true, desc = "Folds: Toggle" })
+
+
+
 -- Git blame current line: name - commit message - date
 vim.keymap.set("n", "<leader>gg", function()
 	local file = vim.fn.expand("%:p")

@@ -8,6 +8,8 @@ require("statusline")
 require("autocommands")
 require("colorscheme")
 require("plugins")
+require("parser")
+-- require("dir")
 
 
 local tracker = require('tracker')
