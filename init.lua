@@ -20,7 +20,9 @@ local filter = {
 
 local db_path = "~/log_tracker.db"
 
-tracker.setup({
-	db_path = db_path,
-	filter = filter,
-})
+vim.schedule(function()
+	tracker.setup({
+		db_path = db_path,
+		filter = filter,
+	})
+end)

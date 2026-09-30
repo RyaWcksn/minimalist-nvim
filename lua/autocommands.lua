@@ -23,7 +23,8 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 
 
 vim.api.nvim_create_autocmd("FileType", {
-	callback = function(_)
-		pcall(vim.treesitter.start)
+	callback = function(ev)
+		if pcall(vim.treesitter.get_parser, ev.buf) then return end
+		pcall(vim.treesitter.start, ev.buf)
 	end
 })
