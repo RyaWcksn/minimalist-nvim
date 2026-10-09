@@ -11,7 +11,8 @@ vim.api.nvim_create_autocmd({ "FileType" }, {
 			"dartls",
 			"clangd",
 			"tinymist",
-			"sqls"
+			"sqls",
+			"svelte"
 		})
 	end,
 	once = true,
