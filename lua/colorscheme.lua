@@ -253,4 +253,4 @@ vim.keymap.set("n", "<Leader>tm", "<cmd>lua toggle_vocaloid_theme()<CR>", {
 })
 
 -- Initialize default starter theme on file launch
-apply_vocaloid_theme("miku")
+apply_vocaloid_theme("luka")
